@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormItem, FormMessage } from "@/components/ui/form";
 import Typography from "@/components/ui/typography";
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { BsSlack } from "react-icons/bs";
 import { MdOutlineAutoAwesome } from "react-icons/md";
@@ -13,8 +13,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Input } from "@/components/ui/input";
 import { log } from "node:console";
+import { Provider } from "@supabase/supabase-js";
+import { supabaseBrowserClient } from "@/supabase/supabaseClient";
 
 const Authpage = () => {
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const formSchema = z.object({
     email: z
       .string()
@@ -31,6 +34,20 @@ const Authpage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+  }
+
+  async function socialAuth(provider: "google" | "github") {
+    setIsAuthenticating(true);
+    try {
+      await supabaseBrowserClient.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${location.origin}/auth/callback` },
+      });
+    } catch (error) {
+      console.error("Error during social authentication:", error);
+    } finally {
+      setIsAuthenticating(false);
+    }
   }
   return (
     <div className="min-h-screen p-5 grid text-center place-content-center bg-white">
@@ -50,7 +67,12 @@ const Authpage = () => {
           className="opacity-19 mb-7"
         />
         <div className="flex flex-col space-y-4">
-          <Button variant="outline" className="py-6 border-2 flex space-x-3">
+          <Button
+            disabled={isAuthenticating}
+            variant="outline"
+            className="py-6 border-2 flex space-x-3"
+            onClick={() => socialAuth("google")}
+          >
             <FcGoogle />
             <Typography
               text="Continue With Google"
@@ -58,7 +80,12 @@ const Authpage = () => {
               className=" text-xl"
             />
           </Button>
-          <Button variant="outline" className="py-6 border-2 flex space-x-3">
+          <Button
+            disabled={isAuthenticating}
+            variant="outline"
+            className="py-6 border-2 flex space-x-3"
+            onClick={() => socialAuth("github")}
+          >
             <RxGithubLogo />
             <Typography
               text="Sign In With GitHub"
@@ -77,7 +104,7 @@ const Authpage = () => {
           {/* form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <fieldset>
+              <fieldset disabled={isAuthenticating}>
                 <Controller
                   control={form.control}
                   name="email"
