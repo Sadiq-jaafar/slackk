@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { log } from "node:console";
 import { Provider } from "@supabase/supabase-js";
 import { supabaseBrowserClient } from "@/supabase/supabaseClient";
+import { registerWithEmail } from "@/actions/register-with-email";
 
 const Authpage = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -33,7 +34,9 @@ const Authpage = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    setIsAuthenticating(true);
+    const response = registerWithEmail(values);
+    setIsAuthenticating(false);
   }
 
   async function socialAuth(provider: "google" | "github") {
@@ -41,7 +44,9 @@ const Authpage = () => {
     try {
       await supabaseBrowserClient.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${location.origin}/auth/callback` },
+        options: {
+          redirectTo: "http://localhost:3000", // `${location.origin}/auth/callback`/Redirect to callback page
+        },
       });
     } catch (error) {
       console.error("Error during social authentication:", error);
@@ -49,6 +54,7 @@ const Authpage = () => {
       setIsAuthenticating(false);
     }
   }
+
   return (
     <div className="min-h-screen p-5 grid text-center place-content-center bg-white">
       <div className="max-w-[450px]">

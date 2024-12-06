@@ -4,32 +4,40 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { supabaseBrowserClient } from "@/supabase/supabaseClient";
 
-const CallbackPage = () => {
+const AuthCallback = () => {
   const router = useRouter();
 
   useEffect(() => {
-    async function handleAuthCallback() {
-      const { data, error } =
-        await supabaseBrowserClient.auth.getSessionFromUrl();
+    async function handleCallback() {
+      try {
+        const { data, error } =
+          await supabaseBrowserClient.auth.getSessionFromUrl();
 
-      if (error) {
-        console.error("Error during callback:", error.message);
-      } else if (data?.session) {
-        console.log("Session received:", data.session);
+        if (error) {
+          console.error("Error during authentication callback:", error.message);
+          return;
+        }
+
+        // Log the session if needed
+        console.log("Authentication successful. Session:", data);
+
+        // Redirect to the home page
+        router.push("/");
+      } catch (error) {
+        console.error("Unexpected error during callback handling:", error);
       }
-
-      // Redirect to home page after handling the callback
-      router.push("/");
     }
 
-    handleAuthCallback();
+    handleCallback();
   }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p>Processing authentication... Please wait.</p>
+      <p className="text-lg">
+        Processing authentication... Redirecting shortly.
+      </p>
     </div>
   );
 };
 
-export default CallbackPage;
+export default AuthCallback;
