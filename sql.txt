@@ -1,0 +1,61 @@
+-- Create the "users" table
+CREATE TABLE users (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  type TEXT DEFAULT 'user' CHECK (
+    type IN ('user', 'admin', 'regulator')
+  ),
+  avatar_url TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_away BOOLEAN DEFAULT FALSE NOT NULL,
+  phone TEXT,
+  workplaces TEXT[],
+  channel TEXT
+);
+
+-- Enable row-level security on the "users" table
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for selecting and updating user data
+CREATE POLICY "can view our user data" 
+ON users 
+FOR SELECT 
+  USING (auth.uid() = id);
+
+CREATE POLICY "can update our user data" 
+ON users 
+FOR UPDATE 
+  USING (auth.uid() = id);
+
+-- Create a function to handle new user insertion
+CREATE OR REPLACE FUNCTION public.handle_new_user() RETURNS TRIGGER AS $$
+BEGIN
+  -- Set a default avatar URL if not provided
+  IF NEW.raw_user_meta_data->>'avatar_url' IS NULL OR NEW.raw_user_meta_data->>'avatar_url' = '' THEN
+    NEW.raw_user_meta_data = jsonb_set(
+      NEW.raw_user_meta_data, 
+      '{avatar_url}', 
+      '"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"'::jsonb
+    );
+  END IF;
+
+  -- Insert the new user into the "users" table
+  INSERT INTO public.users (id, name, type, email, avatar_url)
+  VALUES (
+    NEW.id, 
+    NEW.raw_user_meta_data->>'full_name', 
+    'user', 
+    NEW.email, 
+    NEW.raw_user_meta_data->>'avatar_url'
+  );
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create a trigger to call the function after a new user is created
+CREATE OR REPLACE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW 
+EXECUTE FUNCTION public.handle_new_user();
