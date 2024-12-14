@@ -1,3 +1,19 @@
-import {create} from 'zustand'
+import { create } from 'zustand';
 
-export const useCreateWorkspaceValues = create(set => ({}))
+type CreateWorkspaceValues = {
+  name: string;
+  imageUrl: string;
+  updateImageUrl: (url: string) => void;
+  updateValues: (values: Partial<CreateWorkspaceValues>) => void;
+  currStep: number;
+  setCurrStep: (step: number) => void;
+};
+
+export const useCreateWorkspaceValues = create<CreateWorkspaceValues>((set) => ({
+  name: '',
+  imageUrl: '',
+  updateImageUrl: (url) => set({ imageUrl: url }),
+  updateValues: (values) => set(values),
+  currStep: 1,
+  setCurrStep: (step) => set({ currStep: step }),
+}));
