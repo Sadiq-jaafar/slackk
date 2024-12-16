@@ -75,7 +75,8 @@ const Step1 = () => {
 };
 
 const Step2 = () => {
-  const { setCurrStep } = useCreateWorkspaceValues();
+  const { setCurrStep, updateImageUrl, imageUrl } = useCreateWorkspaceValues();
+  const handleSubmit = () => {};
   return (
     <>
       <Button
@@ -97,9 +98,28 @@ const Step2 = () => {
         <fieldset className="mt-6 flrx flex-col items-center space-y-9">
           {/* image component */}
           <div className="space-x-5">
-            <Button onClick={() => {}}>
+            <Button
+              onClick={() => {
+                updateImageUrl("");
+                handleSubmit();
+              }}
+            >
               <Typography text="Skip for now" variant="p" />
             </Button>
+            {imageUrl ? (
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                size="sm"
+                variant="destructive"
+              >
+                <Typography text="Submit" variant="p" />
+              </Button>
+            ) : (
+              <Button size="sm" className="text-white bg-gray-500">
+                <Typography text="Select an image" variant="p" />
+              </Button>
+            )}
           </div>
         </fieldset>
       </form>
