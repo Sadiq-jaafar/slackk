@@ -82,7 +82,7 @@ const Step2 = () => {
   const { setCurrStep, updateImageUrl, imageUrl, name } =
     useCreateWorkspaceValues();
 
-  const { isSubmitting, setIsSubmitting } = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmit = async () => {
     setIsSubmitting(true);
     const slug = slugify(name);

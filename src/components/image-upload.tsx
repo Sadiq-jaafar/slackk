@@ -8,14 +8,15 @@ const ImageUpload = () => {
   const { imageUrl, updateImageUrl } = useCreateWorkspaceValues();
   if (imageUrl) {
     return (
-      <div className="flex items-center justify-center h-33 w-32 relative">
+      <div className=" flex flex-col items-center justify-center h-33 w-33 relative">
         <Image
           src={imageUrl}
-          className="object-cover w-full h-full rounded-md"
+          className="object-cover w-full h-full rounded-md "
           alt="workspace"
           height={320}
           width={320}
         />
+
         <ImCancelCircle
           size={30}
           onClick={() => updateImageUrl("")}

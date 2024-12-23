@@ -1,9 +1,11 @@
-import { supabaseServerClient } from '@supabase/supabase-js';
+
+import { supabaseServerClient } from '@/supabase/supabaseServer';
 import {User} from '@/types/app'
+import { createServerClient } from "@supabase/ssr";
 
 
  export const getUserData = async(): Promise<User|null> => {
-    const supabase =await supabaseServerClient();
+    const supabase =await  supabaseServerClient() ;
 
     const {
         data:{
