@@ -90,14 +90,14 @@ const Step2 = () => {
     setIsSubmitting(true);
     const slug = slugify(name);
     const invite_code = uuid();
-    const error = await createWorkspace({ imageUrl, name, slug, invite_code });
+    const result = await createWorkspace({ imageUrl, name, slug, invite_code });
     setIsSubmitting(false);
-    if (error?.error) {
-      console.log(error);
+    if (result?.error) {
+      console.log(result.error);
       return toast.error("Couldn't create workspace. Please try again");
     }
     toast.success("Workspace created successfully");
-    router.push("/dashboard");
+    router.push(`/workspace/${result.id}`);
   };
   return (
     <>
@@ -113,17 +113,17 @@ const Step2 = () => {
       <form>
         <Typography text="Add workspace Avatar" className="mt-4" />
         <Typography
-          text="This image can be changed leter in your work space settings"
+          text="This image can be changed later in your workspace settings"
           className="text-neutral-300 mt-3"
           variant="p"
         />
         <fieldset
           disabled={isSubmitting}
-          className="mt-6 flrx flex-col items-center space-y-9"
+          className="mt-6 flex flex-col items-center space-y-9"
         >
           {/* image component */}
           <ImageUpload />
-          <div className=" flex space-x-5 items-center justify-center">
+          <div className="flex space-x-5 items-center justify-center">
             <Button
               onClick={() => {
                 updateImageUrl("");

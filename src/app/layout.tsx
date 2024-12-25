@@ -19,6 +19,8 @@ const roboto = Roboto({
   display: "swap",
   weight: ["100", "300", "400", "700", "900"],
 });
+
+export const revalidate = 0;
 export const metadata: Metadata = {
   title: "Slackk",
   description: "Slack clone",

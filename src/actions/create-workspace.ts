@@ -3,7 +3,7 @@
 import { supabaseServerClient } from "@/supabase/supabaseServer";
 import { getUserData } from "./get-user-data";
 import { error } from "console";
-import { updateUserWorkspace } from "./update-user-workspace";
+import { updateUserWorkspace } from './update-user-workspace';
 import { addMemberToWorkspace } from './add-member-to-workspace';
 
 export const createWorkspace = async ({
@@ -28,25 +28,24 @@ export const createWorkspace = async ({
         image_url: imageUrl,
         name,
         super_admin: userData.id,
-        slug,
         invite_code,
     }).select('*');
 
     if (error) {
-        return { error };
+        return { insertError: error };
     }
 
     const [updateWorkspaceData, updateWorkSpaceError] = await updateUserWorkspace(userData.id, workspaceRecord[0].id);
 
-    if (updateWorkSpaceError) {
-        return { updateError: updateWorkSpaceError };
+    if (updateWorkSpaceError.error) {
+        return { error: updateWorkSpaceError.error };
     }
 
     // add workspace Members
     const [addMemberToWorkspaceData, addMemberToWorkspaceError] = await addMemberToWorkspace(userData.id, workspaceRecord[0].id);
 
-    if (addMemberToWorkspaceError) {
-        return { error: addMemberToWorkspaceError };
+    if (addMemberToWorkspaceError.error) {
+        return { addMemberError: addMemberToWorkspaceError.error };
     }
 
     return { success: true, workspace: workspaceRecord[0] };
